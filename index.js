@@ -17,19 +17,36 @@ import express from "express";
 import axios from "axios";
 import bodyParser from "body-parser";
 
-app.use(bodyParser.urlencoded({ extended: true }));
+
 
 const app = express();
 const port = 3000;
 const API_URL = "https://secrets-api.appbrewery.com";
 
-app.get("/", (req, res) => {
-    res.render("index.ejs", { content: "Waiting for data..." });
-  });
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(express.static("public"));
+
+app.get("/", async(req, res) => {
+    //res.render("index.ejs", { content: "Waiting for data..." });
+
+    try {
+        const response = await axios.get("https://secrets-api.appbrewery.com/random");
+        //console.log(content);
+       res.render("index.ejs",{ secret: response.data.secret, user: response.data.username }); 
+      } catch (error) {
+        console.error("Failed to make request:", error.message);
+        res.render("index.ejs", {
+          error: error.message,
+        });
+      }
+});
 
 
 
-  app.listen(port, () => {
-    console.log(`Server is running on port ${port}`);
-  });
+
+
+
+app.listen(port, () => {
+console.log(`Server is running on port ${port}`);
+});
   
